@@ -77,7 +77,10 @@ var (
 	sgnl_port_str = ""
 )
 
-type healthServer struct{}
+// Embedding UnimplementedHealthServer keeps this compiling when grpc adds methods to the health service.
+type healthServer struct {
+	healthpb.UnimplementedHealthServer
+}
 
 func (s *healthServer) Check(ctx context.Context, in *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
 	log.Debug("SGNL ext_authz health Ok.")

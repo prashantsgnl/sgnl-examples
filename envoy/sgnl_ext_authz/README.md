@@ -30,8 +30,8 @@ These values must match what your SGNL policies check. SGNL compares the action 
 
 ## Limitations
 1. **Every request makes a synchronous call to the SGNL Access Service**, so SGNL's evaluation time is added to each request. There is no caching, retry, or batching.
-2. **Dependency versions are old.** For example, `go.mod` pins grpc-go v1.56.3 and a May 2023 build of go-control-plane. Update and scan the dependencies before any use beyond a test environment.
-3. **Limited testing.** The unit tests use a fake SGNL Access Service. The service was also exercised end to end with Envoy 1.40 and Go 1.25. It has not been load tested.
+2. **Dependencies were updated when this sample was last revised and are not continuously maintained.** Run your own vulnerability scan (for example `govulncheck`) and update them before any use beyond a test environment.
+3. **Limited testing.** The unit tests use a fake SGNL Access Service. The service was also exercised end to end with Envoy 1.40 and Go 1.26. It has not been load tested.
 
 # Prerequisites
 1. You have an SGNL environment up and running.
@@ -48,7 +48,7 @@ These values must match what your SGNL policies check. SGNL compares the action 
 
 7. You will need Git to clone this examples repository. You can follow the steps to install Git [here](https://github.com/git-guides/install-git).
 
-8. You have a Go development environment, version 1.25 or later (see the `go` line in `go.mod`). You can install Go by following this [link](https://go.dev/doc/install).
+8. You have a Go development environment, version 1.26 or later (see the `go` line in `go.mod`). You can install Go by following this [link](https://go.dev/doc/install).
 
 See our [Help Guides](https://help.sgnl.ai) for steps on configuring data sources and policies.
 
