@@ -28,6 +28,11 @@ These values must match what your SGNL policies check. SGNL compares the action 
 3. **The `Debug` log level logs all inbound request headers**, including any credentials the client sent. Do not use it in production.
 4. **The SGNL token is stored in plaintext in `config.json`.** Protect the file, or adapt the service to read it from a secret store.
 
+## Limitations
+1. **Every request makes a synchronous call to the SGNL Access Service**, so SGNL's evaluation time is added to each request. There is no caching, retry, or batching.
+2. **Dependency versions are old.** For example, `go.mod` pins grpc-go v1.56.3 and a May 2023 build of go-control-plane. Update and scan the dependencies before any use beyond a test environment.
+3. **Limited testing.** The unit tests use a fake SGNL Access Service. The service was also exercised end to end with Envoy 1.40 and Go 1.25. It has not been load tested.
+
 # Prerequisites
 1. You have an SGNL environment up and running.
 
@@ -39,11 +44,11 @@ These values must match what your SGNL policies check. SGNL compares the action 
 
 5. You have created an SGNL Protected System and generated a token for it. See the [Envoy Proxy Protected System guide](https://help.sgnl.ai/articles/protected-systems/protected-system-infra-envoy-proxy/).
 
-6. You have a test Envoy proxy. See [installing the envoy proxy](https://www.envoyproxy.io/docs/envoy/latest/start/install) for more details. The sample Envoy configuration was validated and exercised end to end against Envoy 1.40.
+6. You have a test Envoy proxy. See [installing the envoy proxy](https://www.envoyproxy.io/docs/envoy/latest/start/install) for more details. The sample Envoy configuration passes `envoy --mode validate` on Envoy 1.28, 1.34, and 1.40.
 
 7. You will need Git to clone this examples repository. You can follow the steps to install Git [here](https://github.com/git-guides/install-git).
 
-8. You have a Go development environment. You can install Go by following this [link](https://go.dev/doc/install).
+8. You have a Go development environment, version 1.25 or later (see the `go` line in `go.mod`). You can install Go by following this [link](https://go.dev/doc/install).
 
 See our [Help Guides](https://help.sgnl.ai) for steps on configuring data sources and policies.
 
@@ -75,7 +80,7 @@ See our [Help Guides](https://help.sgnl.ai) for steps on configuring data source
    | `action` | Optional. A fixed action to send to SGNL for every request, e.g. `"read"`. Defaults to the HTTP method. |
    | `asset_id_header` | Optional. The name of a request header that carries the asset ID, e.g. `"asset"`. Defaults to the request path. If set and the header is missing, the request is denied without calling SGNL. |
 
-6. Start the authorization service.
+6. Start the authorization service. It runs in the foreground, so leave it running and use a new terminal for the remaining steps.
 
    ```./sgnl_grpc_server```
 
@@ -86,7 +91,7 @@ See our [Help Guides](https://help.sgnl.ai) for steps on configuring data source
     {"level":"info","msg":"Service port: :8223","time":"2023-05-03T15:04:00-05:00"}
   ```
 
-8. Change to the ```/envoy_config``` directory and the ```sgnl_ext_authz.yaml``` Envoy configuration file.
+8. In a new terminal, change to the ```envoy_config``` directory, which contains the ```sgnl_ext_authz.yaml``` Envoy configuration file.
 
 9. Ensure the `ext-authz` cluster configuration section has a valid IP address and port for the authorization service, matching `service_port`. Save configuration changes if any.
 
@@ -103,7 +108,7 @@ See our [Help Guides](https://help.sgnl.ai) for steps on configuring data source
 
 2. A `403` means SGNL denied the request or could not be reached. Check this service's logs for `SGNL ERROR` entries. A `401` means the principal header (`principal` by default) was missing. If SGNL allows the request but nothing is listening on the backend address in the Envoy configuration, Envoy returns a `503`, which still shows that authorization passed.
 
-3. Run the unit tests (they use a fake SGNL Access Service and need no network access):
+3. Run the unit tests (they use a fake SGNL Access Service, so they do not need an SGNL tenant):
 
    ```go test ./...```
 

@@ -299,7 +299,7 @@ func main() {
 		parsedURL, err := url.Parse(sgnlURL)
 
 		if err != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") || parsedURL.Host == "" {
-			log.Error("sgnl_url must be an absolute URL such as https://<access-api-host>/access/v2/evaluations. Check config file.")
+			log.Error("sgnl_url must be an absolute URL such as https://{access-api-host}/access/v2/evaluations. Check config file.")
 			os.Exit(1)
 		}
 
